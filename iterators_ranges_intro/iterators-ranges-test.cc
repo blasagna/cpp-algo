@@ -1,0 +1,88 @@
+#include <vector>
+#include <list>
+#include <iterator>
+#include <algorithm>
+
+#include "gtest/gtest.h"
+
+TEST(IteratorTest, RandomAccess)
+{
+  std::vector<int> arr = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+  auto it1 = arr.begin();
+  it1 += 5;
+  ++it1;
+
+  int dst1 = it1 - arr.begin();
+  EXPECT_EQ(dst1, 6);
+}
+
+TEST(IteratorTest, Bidirectional)
+{
+  std::list<int> lst = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+  auto it1 = lst.begin();
+  std::advance(it1, 5);
+  ++it1;
+
+  int dst1 = std::distance(lst.begin(), it1);
+  EXPECT_EQ(dst1, 6);
+}
+
+TEST(RangeTest, Copy)
+{
+  std::vector<int> data{1, 2, 3, 4, 5, 6, 7};
+  std::vector<int> out(7, 0);
+
+  std::copy(data.begin(), data.end(), // input range
+            out.begin()               // output range, end iterator is implied
+  );
+  for (std::size_t i = 0; i < data.size(); i++)
+  {
+    ASSERT_EQ(out[i], data[i]);
+  }
+}
+
+TEST(RangeTest, SubrangeIsSorted)
+{
+  std::vector<int> data{1, 4, 5, 7, 9, 2, 3};
+  std::vector<int> expectedSorted{1, 4, 5, 7, 9};
+
+  // is_sorted_until returns the first out of order element.
+  auto result = std::is_sorted_until(data.begin(), data.end());
+  EXPECT_EQ(result, data.begin() + 5);
+
+  // [begin, result) is the maximal sorted sub-range
+  std::vector<int> resultSortedIterated;
+  for (auto it = data.begin(); it != result; it++)
+  {
+    // Iterate over all elements in the sorted sub-range.
+    // {1, 4, 5, 7, 9}
+    resultSortedIterated.push_back(*it);
+  }
+  for (std::size_t i = 0; i < expectedSorted.size(); i++)
+  {
+    EXPECT_EQ(resultSortedIterated[i], expectedSorted[i]);
+  }
+
+  std::vector<int> resultSortedSubrange;
+  for (auto v : std::ranges::subrange(data.begin(), result))
+  {
+    // Same, but using a range-based for loop.
+    resultSortedSubrange.push_back(v);
+  }
+  for (std::size_t i = 0; i < expectedSorted.size(); i++)
+  {
+    EXPECT_EQ(resultSortedSubrange[i], expectedSorted[i]);
+  }
+}
+
+TEST(RangeTest, SubrangeFromLowerBound)
+{
+  // todo: implement
+  EXPECT_EQ(true, false);
+}
+
+TEST(RangeTest, StringFromIterators)
+{
+  // todo: implement
+  EXPECT_EQ(true, false);
+}
